@@ -1,9 +1,12 @@
 import asyncio
 import json
 import time
+import logging
 from typing import Optional
+import numpy as np
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from server.pipeline.voice_conversion import PitchShifter
 
 
 router = APIRouter()
@@ -19,6 +22,7 @@ class StreamSession:
         self.start_monotonic: float = time.monotonic()
         self.total_frames_received: int = 0
         self.total_bytes_received: int = 0
+        self.debug_logged_frames: int = 0
 
     @property
     def frame_bytes(self) -> int:
@@ -32,6 +36,7 @@ async def stream_audio(websocket: WebSocket) -> None:
     session: Optional[StreamSession] = None
     stats_interval_seconds = 1.0
     last_stats_time = time.monotonic()
+    log = logging.getLogger("vc")
 
     try:
         # Expect an init JSON text message first
@@ -48,6 +53,19 @@ async def stream_audio(websocket: WebSocket) -> None:
         session.channels = int(init.get("channels", session.channels))
         session.sample_format = str(init.get("format", session.sample_format))
         session.frame_size = int(init.get("frameSize", session.frame_size))
+
+        # Initialize low-latency voice conversion (simple pitch shift for MVP)
+        semitones = float(init.get("semitones", 6.0))
+        vc = PitchShifter(sample_rate=session.sample_rate, semitones=semitones)
+
+        log.info(
+            "ws init: sr=%s ch=%s fmt=%s frame=%s semitones=%.2f",
+            session.sample_rate,
+            session.channels,
+            session.sample_format,
+            session.frame_size,
+            semitones,
+        )
 
         await websocket.send_text(
             json.dumps(
@@ -70,8 +88,48 @@ async def stream_audio(websocket: WebSocket) -> None:
                 session.total_bytes_received += len(data)
                 session.total_frames_received += 1
 
-                # Echo raw PCM back immediately (pass-through)
-                await websocket.send_bytes(data)
+                # Apply voice conversion and send back
+                try:
+                    processed = vc.process(data, session.channels)
+                except Exception as exc:
+                    log.exception("vc.process error: %s", exc)
+                    processed = data
+
+                # Debug: log first few frames, then every 100th frame
+                if session.debug_logged_frames < 10 or (session.total_frames_received % 100 == 0):
+                    try:
+                        x = np.frombuffer(data, dtype=np.int16)
+                        y = np.frombuffer(processed, dtype=np.int16)
+                        # Protect against mismatched lengths
+                        n = min(x.size, y.size)
+                        if n > 0:
+                            diff = (y[:n].astype(np.int32) - x[:n].astype(np.int32))
+                            rms_in = float(np.sqrt(np.mean((x[:n].astype(np.float32)) ** 2)))
+                            rms_out = float(np.sqrt(np.mean((y[:n].astype(np.float32)) ** 2)))
+                            rms_diff = float(np.sqrt(np.mean(diff.astype(np.float32) ** 2)))
+                            log.info(
+                                "frame=%d bytes_in=%d bytes_out=%d rms_in=%.1f rms_out=%.1f rms_diff=%.1f first3_in=%s first3_out=%s",
+                                session.total_frames_received,
+                                len(data),
+                                len(processed),
+                                rms_in,
+                                rms_out,
+                                rms_diff,
+                                x[:3].tolist(),
+                                y[:3].tolist(),
+                            )
+                        else:
+                            log.info(
+                                "frame=%d empty frame bytes_in=%d",
+                                session.total_frames_received,
+                                len(data),
+                            )
+                    except Exception as exc:
+                        log.warning("debug metrics failed: %s", exc)
+                    finally:
+                        session.debug_logged_frames += 1
+
+                await websocket.send_bytes(processed)
 
             elif "text" in message and message["text"] is not None:
                 # Could be control messages later; for now, ignore non-init texts

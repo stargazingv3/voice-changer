@@ -71,3 +71,6 @@ Build for windows: cargo build --target x86_64-pc-windows-gnu
 Modify client/app/package.json tauri build --target x86_64-pc-windows-gnu
 In client/app run : npm run build
 
+Last ditch debugging outside container:
+pip install -r Docker/requirements.txt
+uvicorn server.api.main:app --host 0.0.0.0 --port 8000 --log-level debug
