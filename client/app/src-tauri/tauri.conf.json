@@ -1,0 +1,21 @@
+{
+  "$schema": "https://schemas.tauri.app/config/2",
+  "productName": "Voice Changer",
+  "version": "0.1.0",
+  "identifier": "app.voice.changer",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "Voice Changer",
+        "width": 900,
+        "height": 600
+      }
+    ]
+  }
+}
+
+

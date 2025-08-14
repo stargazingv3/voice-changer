@@ -1,0 +1,20 @@
+services:
+  server:
+    build:
+      context: ..
+      dockerfile: Docker/Dockerfile
+    image: VoiceChanger/server:dev
+    ports:
+      - "8001:8000"
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: ["gpu"]
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    # Enable the line below if your Docker is configured with the nvidia runtime by default
+    # runtime: nvidia
+
+

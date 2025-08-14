@@ -1,6 +1,6 @@
 ---
 
-# VoiceForge — Development Checklist
+# Voice Changer — Development Checklist
 
 ## **Infrastructure & Performance**
 

@@ -29,5 +29,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: docker build -t voiceforge-server:latest ./server
+      - run: docker build -t Voice Changer-server:latest ./server
       - run: echo "Pushing to registry skipped in starter CI"

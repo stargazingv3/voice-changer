@@ -1,0 +1,22 @@
+[package]
+name = "voice_changer_core"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "voice_changer_core"
+path = "src/lib.rs"
+
+[dependencies]
+anyhow = "1.0"
+bytes = "1.5"
+futures-util = "0.3"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1", features = ["sync", "macros", "rt-multi-thread", "time"] }
+# The "connect" feature is required to use the connect_async function.
+tokio-tungstenite = { version = "0.21", default-features = false, features = ["connect", "tokio-native-tls"] }
+cpal = "0.15"
+# The `cast` feature is no longer needed for `cast_slice` in recent versions of bytemuck.
+# Reverting to the configuration that works with newer versions.
+bytemuck = { version = "1", features = ["extern_crate_alloc"] }
