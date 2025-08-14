@@ -1,0 +1,40 @@
+# Cursor AI Coding Rules for VoiceForge Project
+
+# Primary project goals
+goals:
+  - Maintain strict separation between client (Tauri) and server (Dockerized Python)
+  - Ensure all code is cross-platform where possible (Windows-first, Linux-ready)
+  - Prioritize low-latency streaming audio pipeline
+  - Keep all generated code well-commented and easily extensible
+
+# File organization guidance
+file_structure:
+  - Client code in `/client` only (Rust, TypeScript, Tauri config)
+  - Server code in `/server` only (Python, FastAPI, model code)
+  - Shared protocols/config in `/shared`
+  - Documentation, ADRs, and runbooks in `/docs`
+  - CI/CD workflows in `/.github/workflows`
+
+# Development workflow rules
+workflow:
+  - Always consider monorepo context before suggesting file changes
+  - Prefer adding new files rather than overloading existing files
+  - When generating server code, ensure compatibility with NVIDIA Docker runtime
+  - When generating client code, ensure it compiles with `cargo tauri build` on Windows
+  - Avoid OS-specific hacks unless absolutely required; document them when needed
+
+# Code style rules
+style:
+  - Python: PEP8 + type hints
+  - Rust: `cargo fmt` + clippy clean
+  - TypeScript: ESLint + Prettier defaults
+  - All public functions require docstrings/comments
+  - Use descriptive variable/function names
+
+# AI behavior rules
+ai_behavior:
+  - Suggest low-latency audio handling approaches
+  - Avoid unnecessary complexity in MVP phase
+  - Always explain trade-offs for tech choices
+  - Avoid generating secrets or embedding API keys
+  - Never assume user’s machine configuration; give explicit setup instructions

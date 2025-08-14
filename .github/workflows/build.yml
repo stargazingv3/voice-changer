@@ -1,0 +1,33 @@
+
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-windows-client:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+      - run: npm install --prefix client/app
+      - run: cargo tauri build --manifest-path client/Cargo.toml
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: client/src-tauri/target/release/bundle/**
+
+  build-server-docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t voiceforge-server:latest ./server
+      - run: echo "Pushing to registry skipped in starter CI"
