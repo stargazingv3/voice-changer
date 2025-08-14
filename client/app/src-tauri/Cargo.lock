@@ -4316,6 +4316,7 @@ dependencies = [
  "bytes",
  "cpal",
  "futures-util",
+ "once_cell",
  "serde",
  "serde_json",
  "tokio",

@@ -1,7 +1,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::sync::Arc;
-
 use tauri::State;
 use tokio::sync::Mutex;
 use voice_changer_core::{start_stream, AudioConfig, StreamHandle};
@@ -17,7 +15,7 @@ impl AppState {
 }
 
 #[tauri::command]
-async fn start_stream_cmd(state: State<'_, Arc<Mutex<AppState>>>, url: String) -> Result<(), String> {
+async fn start_stream_cmd(state: State<'_, Mutex<AppState>>, url: String) -> Result<(), String> {
     let mut guard = state.lock().await;
     if guard.handle.is_some() {
         return Ok(());
@@ -29,7 +27,7 @@ async fn start_stream_cmd(state: State<'_, Arc<Mutex<AppState>>>, url: String) -
 }
 
 #[tauri::command]
-async fn stop_stream_cmd(state: State<'_, Arc<Mutex<AppState>>>) -> Result<(), String> {
+async fn stop_stream_cmd(state: State<'_, Mutex<AppState>>) -> Result<(), String> {
     let mut guard = state.lock().await;
     if let Some(handle) = guard.handle.take() {
         handle.stop().await.map_err(|e| e.to_string())?;
@@ -39,7 +37,7 @@ async fn stop_stream_cmd(state: State<'_, Arc<Mutex<AppState>>>) -> Result<(), S
 
 fn main() {
     tauri::Builder::default()
-        .manage(Arc::new(Mutex::new(AppState::new())))
+        .manage(Mutex::new(AppState::new()))
         .invoke_handler(tauri::generate_handler![start_stream_cmd, stop_stream_cmd])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -20,3 +20,4 @@ cpal = "0.15"
 # The `cast` feature is no longer needed for `cast_slice` in recent versions of bytemuck.
 # Reverting to the configuration that works with newer versions.
 bytemuck = { version = "1", features = ["extern_crate_alloc"] }
+once_cell = "1"
