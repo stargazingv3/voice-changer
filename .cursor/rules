@@ -6,6 +6,9 @@ goals:
   - Ensure all code is cross-platform where possible (Windows-first, Linux-ready)
   - Prioritize low-latency streaming audio pipeline
   - Keep all generated code well-commented and easily extensible
+  - Refer to docs/adr/0000-plan.md for the overall plan and strategy
+  - Refer to docs/steps.md for the more specific steps I have in mind as a reference
+  - Avoid changing any files in docs/
 
 # File organization guidance
 file_structure:
