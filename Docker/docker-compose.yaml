@@ -3,9 +3,9 @@ services:
     build:
       context: ..
       dockerfile: Docker/Dockerfile
-    image: VoiceChanger/server:dev
+    image: VoiceChanger/server:asr2
     ports:
-      - "8001:8000"
+      - "8000:8000"
     deploy:
       resources:
         reservations:
@@ -14,6 +14,16 @@ services:
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - VC_MODE=asr_tts
+      - VC_ASR=dummy
+      - VOSK_MODEL_PATH=/models/vosk-en
+      - VC_TTS_VOICE=en-US-AriaNeural
+    volumes:
+      # Mount server code for live-reload style development (no rebuild needed)
+      - ../server:/app/server:ro
+      # Mount models directory if using Vosk
+      - ../server/models/vosk-en:/models/vosk-en:ro
+    command: uvicorn server.api.main:app --host 0.0.0.0 --port 8000 --reload
     # Enable the line below if your Docker is configured with the nvidia runtime by default
     # runtime: nvidia
 

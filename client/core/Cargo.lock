@@ -1546,7 +1546,7 @@ dependencies = [
 name = "windows-core"
 version = "0.54.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "12661b9c89351d684a50a8a643ce5f608e20243b9fb84687800163429f161d65"
+checksum = "12661b9c89351d684a50a8a643ce5f608e20243b9fb84687800063429f161d65"
 dependencies = [
  "windows-result",
  "windows-targets 0.52.6",

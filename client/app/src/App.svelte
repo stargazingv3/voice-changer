@@ -2,7 +2,7 @@
   import { invoke } from "@tauri-apps/api/core";
   import { onMount } from "svelte";
 
-  let serverUrl = "ws://localhost:8001/stream/audio";
+  let serverUrl = "ws://localhost:8000/stream/audio";
   let running = false;
   let errorMsg = "";
 

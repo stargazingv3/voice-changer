@@ -15,7 +15,7 @@ cd Docker
 docker compose up --build
 ```
 
-Server will listen at `http://localhost:8001`, WebSocket at `ws://localhost:8001/stream/audio`.
+Server will listen at `http://localhost:8000`, WebSocket at `ws://localhost:8000/stream/audio`.
 
 Health check:
 
